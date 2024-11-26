@@ -4,6 +4,7 @@ import (
 	"flag"
 	"freeDNS/config"
 	"net"
+	"os"
 	"strconv"
 
 	"github.com/imafaz/logger"
@@ -57,10 +58,18 @@ func handleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 func main() {
 	logger.Init("app.log", logger.CONSOLE_ONLY)
-	if err := config.LoadConfig(config.ConfigFile); err != nil {
-		logger.Log(logger.FATAL, "Error loading config: \n", err.Error())
-		return
+
+	_, err := os.Stat("config.ConfigFile")
+	if err != nil {
+		if err := config.LoadConfig(config.ConfigFile); err != nil {
+			logger.Log(logger.FATAL, "Error loading config: \n", err.Error())
+			return
+		}
+	} else {
+		logger.Log(logger.INFO, "config file not found cheking flags")
+
 	}
+
 	flag.StringVar(&config.ServerIP, "server", config.ServerIP, "Server IP")
 	flag.IntVar(&config.Port, "port", config.Port, "Port")
 	flag.StringVar(&config.DnsIP, "dns", config.DnsIP, "DNS response IP")
