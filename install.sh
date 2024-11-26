@@ -36,9 +36,9 @@ sudo mkdir -p /etc/freeDNS
 
 # Download required files
 echo "Downloading required files..."
-wget -O /usr/bin/freeDNS https://raw.githubusercontent.com/imafaz/freeDNS/main/freeDNS
-wget -O /etc/freeDNS/freeDNS.conf https://raw.githubusercontent.com/imafaz/freeDNS/main/confs/freeDNS.conf
-wget -O /etc/systemd/system/freedns.service https://raw.githubusercontent.com/imafaz/freeDNS/main/confs/freeDNS.service
+wget -O /usr/bin/freeDNS https://raw.githubusercontent.com/imafaz/freeDNS/refs/heads/main/freeDNS
+wget -O /etc/freeDNS/freeDNS.conf https://raw.githubusercontent.com/imafaz/freeDNS/refs/heads/main/confs/freeDNS.conf
+wget -O /etc/systemd/system/freedns.service https://raw.githubusercontent.com/imafaz/freeDNS/refs/heads/main/confs/freeDNS.service
 
 # Reload systemd
 echo "Reloading systemd..."
@@ -56,7 +56,7 @@ sudo mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 
 # Download new Nginx configuration file
 echo "Downloading new Nginx configuration file..."
-wget -O /etc/nginx/nginx.conf https://raw.githubusercontent.com/imafaz/freeDNS/main/confs/nginx.conf
+wget -O /etc/nginx/nginx.conf https://raw.githubusercontent.com/imafaz/freeDNS/refs/heads/main/confs/nginx.conf
 
 # Start Nginx and enable it
 echo "Starting Nginx and enabling it..."
