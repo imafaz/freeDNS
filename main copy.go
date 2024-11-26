@@ -58,10 +58,6 @@ func handleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 func main() {
 	logger.Init("app.log", logger.CONSOLE_ONLY)
-	flag.StringVar(&config.ConfigFile, "conf", config.ConfigFile, "Config File Path")
-	flag.BoolVar(&config.Debug, "debug", config.Debug, "Enable debug mode")
-	flag.BoolVar(&config.Help, "help", config.Help, "Show help message")
-	flag.Parse()
 
 	_, err := os.Stat("config.ConfigFile")
 	if err != nil {
@@ -73,6 +69,15 @@ func main() {
 		logger.Log(logger.INFO, "config file not found cheking flags")
 
 	}
+
+	flag.StringVar(&config.ServerIP, "server", config.ServerIP, "Server IP")
+	flag.IntVar(&config.Port, "port", config.Port, "Port")
+	flag.StringVar(&config.DnsIP, "dns", config.DnsIP, "DNS response IP")
+	flag.StringVar(&config.AllowedIPFile, "allowedip", config.AllowedIPFile, "Allowed IPs file")
+	flag.StringVar(&config.DomainsFile, "domains", config.DomainsFile, "Allowed domains file")
+	flag.BoolVar(&config.Debug, "debug", config.Debug, "Enable debug mode")
+	flag.BoolVar(&config.Help, "help", config.Help, "Show help message")
+	flag.Parse()
 
 	if config.Help {
 		config.PrintUsage()
