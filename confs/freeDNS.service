@@ -1,0 +1,5 @@
+[Service]
+ExecStart=/usr/bin/freeDNS
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
