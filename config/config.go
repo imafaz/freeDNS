@@ -2,21 +2,26 @@ package config
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/imafaz/logger"
+	"github.com/miekg/dns"
 )
 
 var (
-	ConfigFile     string = "/etc/freeDNS/freeDNS.conf"
-	ServerIP       string = "0.0.0.0"
-	Port           int    = 53
+	ConfigFile     string = ""
+	ServerIP       string
+	Port           int
 	DnsIP          string
-	AllowedIPFile  string = "ALL"
-	DomainsFile    string = "ALL"
-	Help           bool   = false
-	Debug          bool   = false
+	AllowedIPFile  string
+	DomainsFile    string
+	Help           bool
+	Debug          bool = false
 	AllowedIPs     map[string]struct{}
 	AllowedDomains map[string]struct{}
 )
@@ -109,15 +114,96 @@ func LoadDomains(filename string) error {
 func PrintUsage() {
 	fmt.Println("Usage: freeDNS [options]")
 	fmt.Println("Options:")
-	fmt.Println("  -server string   Server IP address (default: 0.0.0.0)")
-	fmt.Println("  -port int        Port number (default: 53)")
-	fmt.Println("  -dns string      IP address to respond with for DNS queries (required)")
-	fmt.Println("  -allowedip string  Path to a file containing allowed IP addresses (default: ALL)")
-	fmt.Println("  -domains string  Path to a file containing allowed domains (default: ALL)")
+	fmt.Println("  -conf            Configuration file path")
 	fmt.Println("  -debug           Enable debug mode for verbose output")
 	fmt.Println("  -help            Show this help message")
 	fmt.Println()
 	fmt.Println("Example:")
-	fmt.Println("  freeDNS -server 192.168.1.1 -port 53 -dns 172.16.1.1 -allowdip allowedips.list -domains domains.list")
+	fmt.Println("  freeDNS -conf /etc/freeDNS/freeDNS.conf")
+	fmt.Println("Document:")
+	fmt.Println("  https://github.com/imafaz/freeDNS")
 
+}
+
+func ParseConfig() {
+	flag.StringVar(&ConfigFile, "conf", ConfigFile, "Config File Path")
+	flag.BoolVar(&Debug, "debug", Debug, "Enable debug mode")
+	flag.BoolVar(&Help, "help", Help, "Show help message")
+	flag.Parse()
+
+	if ConfigFile == "" {
+		logger.Fatalf("Error: The -conf flag is required. Please provide a configuration path file. Use 'freeDNS -help' for assistance.")
+		os.Exit(0)
+	}
+
+	if Help {
+		PrintUsage()
+		os.Exit(0)
+	}
+
+	if err := LoadConfig(ConfigFile); err != nil {
+		logger.Fatalf("Error loading configuration file: %s\nError: %s", ConfigFile, err.Error())
+	}
+
+	if net.ParseIP(ServerIP).To4() == nil {
+		logger.Fatalf("Server ip '%s' not valid!", ServerIP)
+	}
+
+	if AllowedIPFile != "ALL" {
+		if err := LoadAllowedIPs(AllowedIPFile); err != nil {
+			logger.Fatalf("Error loading allowed IPs file: %s\nError: %s", AllowedIPFile, err.Error())
+			return
+		}
+	}
+
+	if DomainsFile != "ALL" {
+		if err := LoadDomains(DomainsFile); err != nil {
+			logger.Fatalf("Error loading allowed domains file: %s\nError: %s", DomainsFile, err.Error())
+			return
+		}
+	}
+}
+func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
+	clientIP, _, _ := net.SplitHostPort(w.RemoteAddr().String())
+	response := new(dns.Msg)
+	response.SetReply(r)
+
+	if Debug {
+		logger.Debugf("Received request from %s for %s", clientIP, r.Question[0].Name)
+	}
+
+	if _, exists := AllowedIPs[clientIP]; !exists && AllowedIPFile != "ALL" {
+		if Debug {
+			logger.Debugf("Rejected request from %s, reason: not in allowed IPs", clientIP)
+		}
+		return
+	}
+
+	for _, question := range r.Question {
+		if question.Qtype == dns.TypeA {
+			domain := question.Name
+			if _, exists := AllowedDomains[domain]; exists || DomainsFile == "ALL" {
+				rr := &dns.A{
+					Hdr: dns.RR_Header{
+						Name:   domain,
+						Rrtype: dns.TypeA,
+						Class:  dns.ClassINET,
+						Ttl:    3600,
+					},
+					A: net.ParseIP(DnsIP),
+				}
+				response.Answer = append(response.Answer, rr)
+
+				if Debug {
+					logger.Debugf("Responding to %s from %s with ip %s", domain, clientIP, DnsIP)
+				}
+			} else {
+				if Debug {
+					logger.Debugf("Rejected request from %s for %s , reason: not in allowed domains", clientIP, domain)
+				}
+			}
+		}
+	}
+
+	w.WriteMsg(response)
 }

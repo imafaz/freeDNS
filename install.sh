@@ -21,11 +21,10 @@ apt install -y ufw nginx wget
 
 
 echo "Configuring UFW..."
-ufw allow ssh        
-ufw allow http     
-ufw allow https     
-ufw allow 53/udp   
-ufw allow 53/tcp    
+ufw allow ssh
+ufw allow http
+ufw allow https
+ufw allow 53/udp  
 ufw enable          
 echo "UFW configuration completed."
 

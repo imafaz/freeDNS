@@ -1,5 +1,12 @@
+[Unit]
+Description=bypass restrictions and sanctions in Iran
+Documentation=https://github.com/imafaz/freeDNS
+After=network.target
+
 [Service]
-ExecStart=/usr/bin/freeDNS
-StandardOutput=journal
-StandardError=journal
+ExecStart=/usr/bin/freeDNS -conf /etc/freeDNS/freeDNS.conf
 Restart=on-failure
+
+
+[Install]
+WantedBy=multi-user.target
