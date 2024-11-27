@@ -131,13 +131,13 @@ func ParseConfig() {
 	flag.BoolVar(&Help, "help", Help, "Show help message")
 	flag.Parse()
 
-	if ConfigFile == "" {
-		logger.Fatalf("Error: The -conf flag is required. Please provide a configuration path file. Use 'freeDNS -help' for assistance.")
+	if Help {
+		PrintUsage()
 		os.Exit(0)
 	}
 
-	if Help {
-		PrintUsage()
+	if ConfigFile == "" {
+		logger.Fatalf("Error: The -conf flag is required. Please provide a configuration path file. Use 'freeDNS -help' for assistance.")
 		os.Exit(0)
 	}
 
