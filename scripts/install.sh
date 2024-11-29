@@ -44,7 +44,7 @@ chmod 755 /usr/bin/freeDNS
 wget -O /usr/local/freeDNS/freeDNS "$FREEDNS_URL/build/freeDNS"
 chmod 755 /usr/local/freeDNS/freeDNS
 
-wget -O /etc/systemd/system/freedns.service "$FREEDNS_SERVICE_URL"
+wget -O /etc/systemd/system/freeDNS.service "$FREEDNS_SERVICE_URL"
 
 echo "Reload systemd and enable freeDNS service"
 systemctl daemon-reload
