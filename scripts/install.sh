@@ -32,7 +32,7 @@ ufw allow ssh
 ufw allow http
 ufw allow https
 ufw allow 53/udp  
-ufw enable || true     
+yes | sudo ufw enable
 
 echo "Create directory for freeDNS"
 mkdir -p /etc/freeDNS
@@ -48,8 +48,8 @@ wget -O /etc/systemd/system/freeDNS.service "$FREEDNS_SERVICE_URL"
 
 echo "Reload systemd and enable freeDNS service"
 systemctl daemon-reload
-systemctl enable freedns.service
-systemctl start freedns.service
+systemctl enable freeDNS.service
+systemctl start freeDNS.service
 
 echo "Backup and replace Nginx configuration"
 systemctl stop nginx || true
