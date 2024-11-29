@@ -43,8 +43,7 @@ confirm() {
 
 install() {
     echo "Installing freeDNS..."
-    bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/install.sh)
-    if [[ $? -eq 0 ]]; then
+bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/scripts/install.sh)    if [[ $? -eq 0 ]]; then
         echo "Installation successful."
         [[ $# -eq 0 ]] && start
     else
@@ -72,7 +71,7 @@ if [[ $# -eq 0 ]]; then
     exit 1
 fi
 
-command="/usr/local/freeDNS"
+command="/usr/local/freeDNS/freeDNS"
 
 while [[ $# -gt 0 ]]; do
     case $1 in

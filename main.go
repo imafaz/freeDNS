@@ -34,7 +34,7 @@ func main() {
 		config.Debug = true
 	}
 
-	if *showHelp || (len(flag.Args()) == 0) {
+	if *showHelp {
 		flag.Usage()
 		return
 	}
@@ -46,26 +46,37 @@ func main() {
 
 	if *dnsServerIP != "" {
 		database.UpdateConfig("server", *dnsServerIP)
+		return
 	}
 	if *reversProxyIP != "" {
 		database.UpdateConfig("revers_proxy_ip", *reversProxyIP)
+		return
 	}
 	if *dnsServerPort != 0 {
 		database.UpdateConfig("port", strconv.Itoa(*dnsServerPort))
+		return
 	}
 	if *domainToAdd != "" {
 		database.AddDomain(*domainToAdd)
+		return
 	}
 	if *ipToAdd != "" {
 		database.AllowIP(*ipToAdd)
+		return
 	}
 	if *domainToDelete != "" {
 		database.RemoveDomain(*domainToDelete)
+		return
 	}
 	if *ipToDelete != "" {
 		database.RemoveIP(*ipToDelete)
+		return
 	}
 	if *startDnsServer {
 		dnsserver.StartDnsServer()
+	} else {
+		flag.Usage()
+		return
 	}
+
 }
