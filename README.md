@@ -24,7 +24,7 @@
 
 ### Installation
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/scripts/install.sh)
 ```
 
 ### Usage
