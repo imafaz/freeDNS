@@ -80,7 +80,9 @@ func insertConfig() {
 func UpdateConfig(key string, value string) {
 	sql := `UPDATE config SET value = ? WHERE key = ?`
 	_, err := db.Exec(sql, value, key)
-	logger.Fatal(err.Error())
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
 }
 func AddDomain(domain string) {
 	sql := `INSERT INTO domains (domain) VALUES (?, ?)`
