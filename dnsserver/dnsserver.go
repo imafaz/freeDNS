@@ -55,7 +55,7 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 func StartDnsServer() {
 	dns.HandleFunc(".", HandleDNSRequest)
 	server := &dns.Server{Addr: net.JoinHostPort(database.GetConfig("server"), database.GetConfig("port")), Net: "udp"}
-	logger.Infof("Starting DNS server on %s:%s", database.GetConfig("server"), database.GetConfig("server"))
+	logger.Infof("Starting DNS server on %s:%s", database.GetConfig("server"), database.GetConfig("port"))
 	if err := server.ListenAndServe(); err != nil {
 		logger.Fatal("Failed to start dns server: ", err.Error())
 		return
