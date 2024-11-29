@@ -7,7 +7,7 @@ Wants=network.target
 
 [Service]
 WorkingDirectory=/usr/local/freeDNS/
-ExecStart=/usr/local/freeDNS -start
+ExecStart=/usr/local/freeDNS/freeDNS -start
 Restart=on-failure
 
 
