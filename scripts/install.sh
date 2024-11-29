@@ -32,7 +32,7 @@ ufw allow ssh
 ufw allow http
 ufw allow https
 ufw allow 53/udp  
-ufw enable          
+ufw enable || true     
 
 echo "Create directory for freeDNS"
 mkdir -p /etc/freeDNS
@@ -41,8 +41,8 @@ mkdir -p /usr/local/freeDNS
 echo "Download freeDNS"
 wget -O /usr/bin/freeDNS "$FREEDNS_URL/scripts/freeDNS.sh"
 chmod 755 /usr/bin/freeDNS
-wget -O /usr/local/freeDNS "$FREEDNS_URL/build/freeDNS"
-chmod 755 /usr/local/freeDNS
+wget -O /usr/local/freeDNS/freeDNS "$FREEDNS_URL/build/freeDNS"
+chmod 755 /usr/local/freeDNS/freeDNS
 
 wget -O /etc/systemd/system/freedns.service "$FREEDNS_SERVICE_URL"
 

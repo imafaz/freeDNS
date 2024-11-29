@@ -19,17 +19,59 @@ usage() {
     echo -e "  -start           Start freeDNS service"
     echo -e "  -stop            Stop freeDNS service"
     echo -e "  -status          Check the status of freeDNS service"
+    echo -e "  -install         Install freeDNS"
+    echo -e "  -uninstall       Uninstall freeDNS"
     echo -e "${green}Example:${plain}"
     echo -e "  $0 --adddomain example.com --addip 192.168.1.1"
 }
 
-# بررسی پارامترهای ورودی
+confirm() {
+    if [[ $# -gt 1 ]]; then
+        echo && read -p "$1 [Default: $2]: " temp
+        if [[ -z "${temp}" ]]; then
+            temp=$2
+        fi
+    else
+        read -p "$1 [y/n]: " temp
+    fi
+    if [[ "${temp,,}" == "y" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+install() {
+    echo "Installing freeDNS..."
+    bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/install.sh)
+    if [[ $? -eq 0 ]]; then
+        echo "Installation successful."
+        [[ $# -eq 0 ]] && start
+    else
+        echo -e "${red}Installation failed.${plain}"
+    fi
+}
+
+uninstall() {
+    confirm "Are you sure you want to uninstall freeDNS?" "n"
+    if [[ $? -ne 0 ]]; then
+        return 0
+    fi
+    echo "Uninstalling freeDNS..."
+    systemctl stop freeDNS
+    systemctl disable freeDNS
+    rm -f /etc/systemd/system/freeDNS.service
+    systemctl daemon-reload
+    rm -rf /etc/freeDNS/
+    rm -rf /usr/local/freeDNS
+    echo "Uninstallation complete."
+}
+
 if [[ $# -eq 0 ]]; then
     usage
     exit 1
 fi
 
-# اجرای دستورات با پارامترهای ورودی
 command="/usr/local/freeDNS"
 
 while [[ $# -gt 0 ]]; do
@@ -90,6 +132,14 @@ while [[ $# -gt 0 ]]; do
             fi
             exit 0
             ;;
+        -install)
+            install
+            exit 0
+            ;;
+        -uninstall)
+            uninstall
+            exit 0
+            ;;
         *)
             echo -e "${red}Unknown option: $1${plain}"
             usage
@@ -98,6 +148,5 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# اجرای دستور نهایی
 echo "Executing: $command"
 $command
