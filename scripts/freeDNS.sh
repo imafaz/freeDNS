@@ -47,7 +47,6 @@ install() {
     
     if [[ $? -eq 0 ]]; then
         echo "Installation successful."
-        [[ $# -eq 0 ]] && start
     else
         echo -e "${red}Installation failed.${plain}"
     fi

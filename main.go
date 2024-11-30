@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"freeDNS/config"
 	"freeDNS/database"
 	"freeDNS/dnsserver"
@@ -27,6 +28,8 @@ func main() {
 	reversProxyIP := flag.String("proxyIP", "", "reverse proxy nginx IP")
 	domainRestrictions := flag.String("domain_restrictions", "", "Set domain restrictions (yes/no)")
 	ipRestrictions := flag.String("ip_restrictions", "", "Set IP restrictions (yes/no)")
+	getDomains := flag.Bool("getdomains", false, "show all domains")
+	getIPs := flag.Bool("getips", false, "show all allowd ips")
 
 	debug := flag.Bool("debug", false, "enable debug")
 
@@ -35,63 +38,81 @@ func main() {
 	if *debug {
 		config.Debug = true
 	}
-
+	if *getDomains {
+		fmt.Println(database.GetDomains())
+	}
+	if *getIPs {
+		fmt.Println(database.GetIPs())
+	}
 	if *showHelp {
 		flag.Usage()
 		return
 	}
 
 	if *showVersion || *showVersionShort {
-		logger.Debugf("%v %v\n", config.GetName(), config.GetVersion())
+		logger.Infof("%v %v\n", config.GetName(), config.GetVersion())
 		return
 	}
 
 	if *dnsServerIP != "" {
 		database.UpdateConfig("server", *dnsServerIP)
-		logger.Debugf("DNS server IP updated to: %s", *dnsServerIP)
+		logger.Infof("DNS server IP updated to: %s", *dnsServerIP)
+		return
 	}
 	if *reversProxyIP != "" {
 		database.UpdateConfig("revers_proxy_ip", *reversProxyIP)
-		logger.Debugf("Reverse proxy IP updated to: %s", *reversProxyIP)
+		logger.Infof("Reverse proxy IP updated to: %s", *reversProxyIP)
+		return
 	}
 	if *dnsServerPort != 0 {
 		database.UpdateConfig("port", strconv.Itoa(*dnsServerPort))
-		logger.Debugf("DNS server port updated to: %d", *dnsServerPort)
+		logger.Infof("DNS server port updated to: %d", *dnsServerPort)
+		return
 	}
 	if *domainToAdd != "" {
 		database.AddDomain(*domainToAdd)
-		logger.Debugf("Domain added: %s", *domainToAdd)
+		logger.Infof("Domain added: %s", *domainToAdd)
+		return
 	}
 	if *ipToAdd != "" {
 		database.AllowIP(*ipToAdd)
-		logger.Debugf("IP allowed: %s", *ipToAdd)
+		logger.Infof("IP allowed: %s", *ipToAdd)
+		return
 	}
 	if *domainToDelete != "" {
 		database.RemoveDomain(*domainToDelete)
-		logger.Debugf("Domain removed: %s", *domainToDelete)
+		logger.Infof("Domain removed: %s", *domainToDelete)
+		return
 	}
 	if *ipToDelete != "" {
 		database.RemoveIP(*ipToDelete)
-		logger.Debugf("IP removed: %s", *ipToDelete)
+		logger.Infof("IP removed: %s", *ipToDelete)
+		return
 	}
 	if *startDnsServer {
 		dnsserver.StartDnsServer()
-		logger.Debug("DNS server started")
+		logger.Info("DNS server started")
+		return
 	}
 
 	if *domainRestrictions == "yes" || *domainRestrictions == "no" {
 		database.UpdateConfig("domain_restrictions", *domainRestrictions)
+		logger.Infof("Domain Restriction changed to %s", *domainRestrictions)
+
 	} else if *domainRestrictions != "" {
 		logger.Fatal("Invalid value for domain_restrictions. Please use 'yes' or 'no'.")
 	}
 
 	if *ipRestrictions == "yes" || *ipRestrictions == "no" {
 		database.UpdateConfig("ip_restrictions", *ipRestrictions)
+		logger.Infof("IP Restriction changed to %s", *ipRestrictions)
+
 	} else if *ipRestrictions != "" {
 		logger.Fatal("Invalid value for ip_restrictions. Please use 'yes' or 'no'.")
 	}
 
 	if len(flag.Args()) == 0 {
 		logger.Fatal("No flags provided. Use -help for usage information.")
+		return
 	}
 }
