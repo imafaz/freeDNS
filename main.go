@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"freeDNS/config"
 	"freeDNS/database"
 	"freeDNS/dnsserver"
@@ -17,6 +16,7 @@ func main() {
 
 	showHelp := flag.Bool("help", false, "Show help")
 	showVersion := flag.Bool("version", false, "Show version")
+	showVersionShort := flag.Bool("v", false, "Show version (short)")
 	dnsServerIP := flag.String("server", "", "Set DNS server listen IP")
 	dnsServerPort := flag.Int("port", 0, "Set DNS server listen port")
 	domainToAdd := flag.String("adddomain", "", "Add domain")
@@ -24,7 +24,9 @@ func main() {
 	domainToDelete := flag.String("deldomain", "", "Delete domain")
 	ipToDelete := flag.String("delip", "", "Delete IP")
 	startDnsServer := flag.Bool("start", false, "Start DNS server")
-	reversProxyIP := flag.String("proxy", "", "reverse proxy nginx IP")
+	reversProxyIP := flag.String("proxyIP", "", "reverse proxy nginx IP")
+	domainRestrictions := flag.String("domain_restrictions", "", "Set domain restrictions (yes/no)")
+	ipRestrictions := flag.String("ip_restrictions", "", "Set IP restrictions (yes/no)")
 
 	debug := flag.Bool("debug", false, "enable debug")
 
@@ -39,44 +41,57 @@ func main() {
 		return
 	}
 
-	if *showVersion {
-		fmt.Printf("%v %v", config.GetName(), config.GetVersion())
+	if *showVersion || *showVersionShort {
+		logger.Debugf("%v %v\n", config.GetName(), config.GetVersion())
 		return
 	}
 
 	if *dnsServerIP != "" {
 		database.UpdateConfig("server", *dnsServerIP)
-		return
+		logger.Debugf("DNS server IP updated to: %s", *dnsServerIP)
 	}
 	if *reversProxyIP != "" {
 		database.UpdateConfig("revers_proxy_ip", *reversProxyIP)
-		return
+		logger.Debugf("Reverse proxy IP updated to: %s", *reversProxyIP)
 	}
 	if *dnsServerPort != 0 {
 		database.UpdateConfig("port", strconv.Itoa(*dnsServerPort))
-		return
+		logger.Debugf("DNS server port updated to: %d", *dnsServerPort)
 	}
 	if *domainToAdd != "" {
 		database.AddDomain(*domainToAdd)
-		return
+		logger.Debugf("Domain added: %s", *domainToAdd)
 	}
 	if *ipToAdd != "" {
 		database.AllowIP(*ipToAdd)
-		return
+		logger.Debugf("IP allowed: %s", *ipToAdd)
 	}
 	if *domainToDelete != "" {
 		database.RemoveDomain(*domainToDelete)
-		return
+		logger.Debugf("Domain removed: %s", *domainToDelete)
 	}
 	if *ipToDelete != "" {
 		database.RemoveIP(*ipToDelete)
-		return
+		logger.Debugf("IP removed: %s", *ipToDelete)
 	}
 	if *startDnsServer {
 		dnsserver.StartDnsServer()
-	} else {
-		flag.Usage()
-		return
+		logger.Debug("DNS server started")
 	}
 
+	if *domainRestrictions == "yes" || *domainRestrictions == "no" {
+		database.UpdateConfig("domain_restrictions", *domainRestrictions)
+	} else if *domainRestrictions != "" {
+		logger.Fatal("Invalid value for domain_restrictions. Please use 'yes' or 'no'.")
+	}
+
+	if *ipRestrictions == "yes" || *ipRestrictions == "no" {
+		database.UpdateConfig("ip_restrictions", *ipRestrictions)
+	} else if *ipRestrictions != "" {
+		logger.Fatal("Invalid value for ip_restrictions. Please use 'yes' or 'no'.")
+	}
+
+	if len(flag.Args()) == 0 {
+		logger.Fatal("No flags provided. Use -help for usage information.")
+	}
 }
