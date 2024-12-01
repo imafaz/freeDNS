@@ -115,37 +115,25 @@ func RemoveIP(IP string) {
 	}
 }
 func DomainExists(domain string) bool {
-	domain = strings.TrimSpace(domain)
-	logger.Debugf("domain :%q", domain)
-
-	domains := GetDomains()
-	logger.Debugf("Current domains in database:%q", domains)
-
-	logger.Debug("checkink domain exists")
-	query := `SELECT domain FROM domains WHERE domain = ?`
-	var result string
-	logger.Debug("runnig query")
-	err := db.QueryRow(query, domain).Scan(&result)
-	logger.Debug("query runned")
-	logger.Debug("cecking exists")
-	if err == sql.ErrNoRows {
-		logger.Debug("domain not exists")
-		return false
-	} else if err != nil {
-		logger.Debug("other error")
+	domain = strings.TrimSuffix(domain, ".")
+	query := `SELECT EXISTS(SELECT 1 FROM domains WHERE domain = ?)`
+	var exists bool
+	err := db.QueryRow(query, domain).Scan(&exists)
+	if err != nil {
 		logger.Fatal(err.Error())
 	}
-	logger.Debug("domain exists")
-	return true
+	return exists
 }
 
 func IPExists(IP string) bool {
-	query := `SELECT ip FROM allowIP WHERE ip = ?`
-	var result string
-	err := db.QueryRow(query, IP).Scan(&result)
-	return err == nil
+	query := `SELECT EXISTS(SELECT 1 FROM allowIP WHERE ip = ?)`
+	var exists bool
+	err := db.QueryRow(query, IP).Scan(&exists)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+	return exists
 }
-
 func GetAllConfig() (map[string]string, error) {
 	configs := make(map[string]string)
 	query := `SELECT key, value FROM config`
