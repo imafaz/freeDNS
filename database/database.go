@@ -117,13 +117,13 @@ func RemoveIP(IP string) {
 func DomainExists(domain string) bool {
 	query := `SELECT domain FROM domains WHERE domain = ?`
 	err := db.QueryRow(query, domain).Scan(domain)
-	return err == nil
+	return err != nil
 }
 
 func IPExists(IP string) bool {
 	query := `SELECT domain FROM domains WHERE domain = ?`
 	err := db.QueryRow(query, IP).Scan(IP)
-	return err == nil
+	return err != nil
 }
 
 func GetAllConfig() (map[string]string, error) {
