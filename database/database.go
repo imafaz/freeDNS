@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"strings"
 
 	"github.com/imafaz/logger"
 	_ "github.com/mattn/go-sqlite3"
@@ -114,6 +115,7 @@ func RemoveIP(IP string) {
 	}
 }
 func DomainExists(domain string) bool {
+	domain = strings.TrimSpace(domain)
 	domains := GetDomains()
 	logger.Debug(domains...)
 	logger.Debug("checkink domain exists")
