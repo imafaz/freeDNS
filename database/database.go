@@ -117,7 +117,12 @@ func DomainExists(domain string) bool {
 	query := `SELECT domain FROM domains WHERE domain = ?`
 	var result string
 	err := db.QueryRow(query, domain).Scan(&result)
-	return err == nil
+	if err == sql.ErrNoRows {
+		return false
+	} else if err != nil {
+		logger.Fatal(err.Error())
+	}
+	return true
 }
 
 func IPExists(IP string) bool {
