@@ -117,7 +117,8 @@ func RemoveIP(IP string) {
 func DomainExists(domain string) bool {
 	domain = strings.TrimSpace(domain)
 	domains := GetDomains()
-	logger.Debug(domains...)
+	logger.Debugf("Current domains in database:%v", domains)
+
 	logger.Debug("checkink domain exists")
 	query := `SELECT domain FROM domains WHERE domain = ?`
 	var result string
