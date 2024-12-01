@@ -13,6 +13,8 @@ import (
 
 func main() {
 	database.InitDB(config.GetDBPath())
+	logger.SetLogFile("/var/log/freeDNS.log")
+	logger.SetOutput(logger.CONSOLE_AND_FILE)
 	logger.Infof("%v %v", config.GetName(), config.GetVersion())
 
 	showHelp := flag.Bool("help", false, "Show help")

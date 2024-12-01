@@ -36,7 +36,8 @@ yes | sudo ufw enable
 
 echo "Create directory for freeDNS"
 mkdir -p /etc/freeDNS
-mkdir -p /usr/local/freeDNS
+mkdir -p /usr/local/freeDNS/
+
 
 echo "Download freeDNS"
 wget -O /usr/bin/freeDNS "$FREEDNS_URL/scripts/freeDNS.sh"
