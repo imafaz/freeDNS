@@ -115,7 +115,7 @@ func RemoveIP(IP string) {
 	}
 }
 func DomainExists(domain string) bool {
-	query := `SELECT domain FROM domains WHERE domains = ?`
+	query := `SELECT domain FROM domains WHERE domain = ?`
 	err := db.QueryRow(query, domain).Scan(&domain)
 	if err != nil {
 
