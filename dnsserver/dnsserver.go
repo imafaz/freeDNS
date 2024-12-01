@@ -20,6 +20,8 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 	if !database.IPExists(clientIP) && database.GetConfig("ip_restrictions") == "yes" {
 		logger.Debugf("Rejected request from %s, reason: not in allowed IPs", clientIP)
+		response.SetRcode(r, dns.RcodeRefused)
+		w.WriteMsg(response)
 		return
 	}
 
