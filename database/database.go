@@ -53,9 +53,9 @@ func insertConfig() {
 	var err error
 
 	configs := map[string]string{
-		"ip_restrictions":     "no",
-		"domain_restrictions": "no",
-		"revers_proxy_ip":     "",
+		"ip_restrictions":     "yes",
+		"domain_restrictions": "yes",
+		"revers_proxy_ip":     "127.0.0.1",
 		"server":              "0.0.0.0",
 		"port":                "53",
 	}
@@ -85,7 +85,7 @@ func UpdateConfig(key string, value string) {
 	}
 }
 func AddDomain(domain string) {
-	sql := `INSERT INTO domains (domain) VALUES (?, ?)`
+	sql := `INSERT INTO domains (domain) VALUES (?)`
 	_, err := db.Exec(sql, domain)
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -93,7 +93,7 @@ func AddDomain(domain string) {
 }
 
 func AllowIP(IP string) {
-	sql := `INSERT INTO allowIP (ip) VALUES (?, ?)`
+	sql := `INSERT INTO allowIP (ip) VALUES (?)`
 	_, err := db.Exec(sql, IP)
 	if err != nil {
 		logger.Fatal(err.Error())
