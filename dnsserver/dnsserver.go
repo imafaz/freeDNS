@@ -30,7 +30,7 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 			domain := question.Name
 			logger.Infof("domain exists: %t", database.DomainExists(domain))
 
-			if database.DomainExists(domain) || database.GetConfig("domain_restrictions") == "no" {
+			if database.DomainExists(domain) {
 				rr := &dns.A{
 					Hdr: dns.RR_Header{
 						Name:   domain,

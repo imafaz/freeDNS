@@ -53,11 +53,10 @@ func insertConfig() {
 	var err error
 
 	configs := map[string]string{
-		"ip_restrictions":     "yes",
-		"domain_restrictions": "yes",
-		"revers_proxy_ip":     "127.0.0.1",
-		"server":              "0.0.0.0",
-		"port":                "53",
+		"ip_restrictions": "yes",
+		"revers_proxy_ip": "127.0.0.1",
+		"server":          "0.0.0.0",
+		"port":            "53",
 	}
 
 	for key, value := range configs {
