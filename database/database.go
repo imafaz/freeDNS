@@ -118,14 +118,11 @@ func DomainExists(domain string) bool {
 	query := `SELECT domain FROM domains WHERE domain = ?`
 	err := db.QueryRow(query, domain).Scan(&domain)
 	if err != nil {
-
-		if err != sql.ErrNoRows {
-			logger.Fatal(err.Error())
+		if err == sql.ErrNoRows {
+			return false
 		}
-
-		return false
+		logger.Fatal("Error querying domain: ", err.Error())
 	}
-
 	return true
 }
 
@@ -139,20 +136,32 @@ func DomainExists(domain string) bool {
 // 	return exists
 // }
 
-func IPExists(IP string) bool {
-	query := `SELECT ip FROM allowIP WHERE ip = ?`
-	err := db.QueryRow(query, IP).Scan(&IP)
+func IPExists(ip string) bool {
+	query := `SELECT domain FROM domains WHERE domain = ?`
+	err := db.QueryRow(query, ip).Scan(&ip)
 	if err != nil {
-
-		if err != sql.ErrNoRows {
-			logger.Fatal(err.Error())
+		if err == sql.ErrNoRows {
+			return false
 		}
-
-		return false
+		logger.Fatal("Error querying ip: ", err.Error())
 	}
-
 	return true
 }
+
+// func IPExists(IP string) bool {
+// 	query := `SELECT ip FROM allowIP WHERE ip = ?`
+// 	err := db.QueryRow(query, IP).Scan(&IP)
+// 	if err != nil {
+
+// 		if err != sql.ErrNoRows {
+// 			logger.Fatal(err.Error())
+// 		}
+
+// 		return false
+// 	}
+
+// 	return true
+// }
 
 //	func IPExists(IP string) bool {
 //		var exists bool
