@@ -30,6 +30,7 @@ func main() {
 	ipRestrictions := flag.String("ip_restrictions", "", "Set IP restrictions (yes/no)")
 	getDomains := flag.Bool("getdomains", false, "show all domains")
 	getIPs := flag.Bool("getips", false, "show all allowd ips")
+	getConfigs := flag.Bool("getconfigs", false, "show all configs")
 
 	debug := flag.Bool("debug", false, "enable debug")
 
@@ -40,9 +41,15 @@ func main() {
 	}
 	if *getDomains {
 		fmt.Println(database.GetDomains())
+		return
 	}
 	if *getIPs {
 		fmt.Println(database.GetIPs())
+		return
+	}
+	if *getConfigs {
+		fmt.Println(database.GetAllConfig())
+		return
 	}
 	if *showHelp {
 		flag.Usage()
@@ -98,6 +105,7 @@ func main() {
 	if *domainRestrictions == "yes" || *domainRestrictions == "no" {
 		database.UpdateConfig("domain_restrictions", *domainRestrictions)
 		logger.Infof("Domain Restriction changed to %s", *domainRestrictions)
+		return
 
 	} else if *domainRestrictions != "" {
 		logger.Fatal("Invalid value for domain_restrictions. Please use 'yes' or 'no'.")
@@ -106,6 +114,7 @@ func main() {
 	if *ipRestrictions == "yes" || *ipRestrictions == "no" {
 		database.UpdateConfig("ip_restrictions", *ipRestrictions)
 		logger.Infof("IP Restriction changed to %s", *ipRestrictions)
+		return
 
 	} else if *ipRestrictions != "" {
 		logger.Fatal("Invalid value for ip_restrictions. Please use 'yes' or 'no'.")
