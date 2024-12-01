@@ -114,14 +114,23 @@ func RemoveIP(IP string) {
 	}
 }
 func DomainExists(domain string) bool {
+	domains := GetDomains()
+	logger.Debug(domains...)
+	logger.Debug("checkink domain exists")
 	query := `SELECT domain FROM domains WHERE domain = ?`
 	var result string
+	logger.Debug("runnig query")
 	err := db.QueryRow(query, domain).Scan(&result)
+	logger.Debug("query runned")
+	logger.Debug("cecking exists")
 	if err == sql.ErrNoRows {
+		logger.Debug("domain not exists")
 		return false
 	} else if err != nil {
+		logger.Debug("other error")
 		logger.Fatal(err.Error())
 	}
+	logger.Debug("domain exists")
 	return true
 }
 
