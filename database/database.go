@@ -21,35 +21,35 @@ func InitDB(dbPath string) {
 
 func createTables() {
 	var err error
-	var sql string
-	sql = `CREATE TABLE IF NOT EXISTS domains (
+	var query string
+	query = `CREATE TABLE IF NOT EXISTS domains (
         domain TEXT NOT NULL PRIMARY KEY
     );`
-	_, err = db.Exec(sql)
+	_, err = db.Exec(query)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
 
-	sql = `CREATE TABLE IF NOT EXISTS config (
+	query = `CREATE TABLE IF NOT EXISTS config (
     key TEXT NOT NULL PRIMARY KEY,
     value TEXT NOT NULL
 );`
-	_, err = db.Exec(sql)
+	_, err = db.Exec(query)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
 
-	sql = `CREATE TABLE IF NOT EXISTS allowIP (
+	query = `CREATE TABLE IF NOT EXISTS allowIP (
 		ip TEXT NOT NULL PRIMARY KEY
 		);`
-	_, err = db.Exec(sql)
+	_, err = db.Exec(query)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
 }
 
 func insertConfig() {
-	var sql string
+	var query string
 	var err error
 
 	configs := map[string]string{
@@ -61,15 +61,15 @@ func insertConfig() {
 	}
 
 	for key, value := range configs {
-		sql = `SELECT COUNT(*) FROM config WHERE key = ?`
+		query = `SELECT COUNT(*) FROM config WHERE key = ?`
 		var count int
-		err = db.QueryRow(sql, key).Scan(&count)
+		err = db.QueryRow(query, key).Scan(&count)
 		if err != nil {
 			logger.Fatal(err.Error())
 		}
 		if count == 0 {
-			sql = `INSERT INTO config (key, value) VALUES (?, ?)`
-			_, err = db.Exec(sql, key, value)
+			query = `INSERT INTO config (key, value) VALUES (?, ?)`
+			_, err = db.Exec(query, key, value)
 			if err != nil {
 				logger.Fatal(err.Error())
 			}
@@ -78,66 +78,95 @@ func insertConfig() {
 }
 
 func UpdateConfig(key string, value string) {
-	sql := `UPDATE config SET value = ? WHERE key = ?`
-	_, err := db.Exec(sql, value, key)
+	query := `UPDATE config SET value = ? WHERE key = ?`
+	_, err := db.Exec(query, value, key)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
 }
 func AddDomain(domain string) {
-	sql := `INSERT INTO domains (domain) VALUES (?)`
-	_, err := db.Exec(sql, domain)
+	query := `INSERT INTO domains (domain) VALUES (?)`
+	_, err := db.Exec(query, domain)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
 }
 
 func AllowIP(IP string) {
-	sql := `INSERT INTO allowIP (ip) VALUES (?)`
-	_, err := db.Exec(sql, IP)
+	query := `INSERT INTO allowIP (ip) VALUES (?)`
+	_, err := db.Exec(query, IP)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
 }
 func RemoveDomain(domain string) {
-	sql := `DELETE FROM domains WHERE domain = ?`
-	_, err := db.Exec(sql, domain)
+	query := `DELETE FROM domains WHERE domain = ?`
+	_, err := db.Exec(query, domain)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
 }
 
 func RemoveIP(IP string) {
-	sql := `DELETE FROM allowIP WHERE ip = ?`
-	_, err := db.Exec(sql, IP)
+	query := `DELETE FROM allowIP WHERE ip = ?`
+	_, err := db.Exec(query, IP)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
+}
+func DomainExists(domain string) bool {
+	query := `SELECT domain FROM domains WHERE domains = ?`
+	err := db.QueryRow(query, domain).Scan(&domain)
+	if err != nil {
+
+		if err != sql.ErrNoRows {
+			logger.Fatal(err.Error())
+		}
+
+		return false
+	}
+
+	return true
 }
 
-func DomainExists(domain string) bool {
-	var exists bool
-	sql := `SELECT EXISTS(SELECT 1 FROM domains WHERE domain = ?)`
-	err := db.QueryRow(sql, domain).Scan(&exists)
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
-	return exists
-}
+// func DomainExists(domain string) bool {
+// 	var exists bool
+// 	query := `SELECT EXISTS(SELECT 1 FROM domains WHERE domain = ?)`
+// 	err := db.QueryRow(query, domain).Scan(&exists)
+// 	if err != nil {
+// 		logger.Fatal(err.Error())
+// 	}
+// 	return exists
+// }
 
 func IPExists(IP string) bool {
-	var exists bool
-	sql := `SELECT EXISTS(SELECT 1 FROM allowIP WHERE ip = ?)`
-	err := db.QueryRow(sql, IP).Scan(&exists)
+	query := `SELECT ip FROM allowIP WHERE ip = ?`
+	err := db.QueryRow(query, IP).Scan(&IP)
 	if err != nil {
-		logger.Fatal(err.Error())
+
+		if err != sql.ErrNoRows {
+			logger.Fatal(err.Error())
+		}
+
+		return false
 	}
-	return exists
+
+	return true
 }
+
+//	func IPExists(IP string) bool {
+//		var exists bool
+//		query := `SELECT EXISTS(SELECT 1 FROM allowIP WHERE ip = ?)`
+//		err := db.QueryRow(query, IP).Scan(&exists)
+//		if err != nil {
+//			logger.Fatal(err.Error())
+//		}
+//		return exists
+//	}
 func GetAllConfig() (map[string]string, error) {
 	configs := make(map[string]string)
-	sql := `SELECT key, value FROM config`
-	rows, err := db.Query(sql)
+	query := `SELECT key, value FROM config`
+	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -158,57 +187,57 @@ func GetAllConfig() (map[string]string, error) {
 	return configs, nil
 }
 
-func GetDomains() ([]string, error) {
+func GetDomains() []string {
 	var domains []string
-	sql := `SELECT domain FROM domains`
-	rows, err := db.Query(sql)
+	query := `SELECT domain FROM domains`
+	rows, err := db.Query(query)
 	if err != nil {
-		return nil, err
+		logger.Fatal(err.Error())
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var domain string
 		if err := rows.Scan(&domain); err != nil {
-			return nil, err
+			logger.Fatal(err.Error())
 		}
 		domains = append(domains, domain)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		logger.Fatal(err.Error())
 	}
 
-	return domains, nil
+	return domains
 }
 
-func GetIPs() ([]string, error) {
+func GetIPs() []string {
 	var ips []string
-	sql := `SELECT ip FROM allowIP`
-	rows, err := db.Query(sql)
+	query := `SELECT ip FROM allowIP`
+	rows, err := db.Query(query)
 	if err != nil {
-		return nil, err
+		logger.Fatal(err.Error())
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var ip string
 		if err := rows.Scan(&ip); err != nil {
-			return nil, err
+			logger.Fatal(err.Error())
 		}
 		ips = append(ips, ip)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		logger.Fatal(err.Error())
 	}
 
-	return ips, nil
+	return ips
 }
 func GetConfig(key string) string {
 	var value string
-	sql := `SELECT value FROM config WHERE key = ?`
-	err := db.QueryRow(sql, key).Scan(&value)
+	query := `SELECT value FROM config WHERE key = ?`
+	err := db.QueryRow(query, key).Scan(&value)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
