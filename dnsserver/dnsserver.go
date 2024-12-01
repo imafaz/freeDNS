@@ -46,14 +46,40 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 					logger.Debugf("Responding to %s from %s with ip %s", domain, clientIP, database.GetConfig("revers_proxy_ip"))
 				}
 			} else {
-				if config.Debug {
-					logger.Debugf("Rejected request from %s for %s , reason: not in allowed domains", clientIP, domain)
+				ip := resolveDomain(domain)
+				rr := &dns.A{
+					Hdr: dns.RR_Header{
+						Name:   domain,
+						Rrtype: dns.TypeA,
+						Class:  dns.ClassINET,
+						Ttl:    3600,
+					},
+					A: ip,
 				}
+				response.Answer = append(response.Answer, rr)
+
+				if config.Debug {
+					logger.Debugf("Resolved %s to %s", domain, ip.String())
+				}
+
 			}
 		}
 	}
 
 	w.WriteMsg(response)
+}
+
+func resolveDomain(domain string) net.IP {
+	ips, err := net.LookupIP(domain)
+	if err != nil {
+		logger.Fatal("Failed to resolve domain: ", err.Error())
+	}
+	for _, ip := range ips {
+		if ip.To4() != nil {
+			return ip
+		}
+	}
+	return nil
 }
 
 func StartDnsServer() {
