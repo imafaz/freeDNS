@@ -59,6 +59,12 @@ install() {
         echo -e "${red}Installation failed.${plain}"
     fi
 }
+reload() {
+    echo "Reloading freeDNS..."
+    systemctl restart freeDNS
+    systemctl restart nginx
+  
+}
 update() {
     echo "Updating freeDNS..."
     bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/scripts/install.sh)
