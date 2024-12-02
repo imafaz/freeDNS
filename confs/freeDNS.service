@@ -7,7 +7,7 @@ PartOf=nginx.service
 
 [Service]
 WorkingDirectory=/usr/local/freeDNS/
-ExecStart=/usr/local/freeDNS/freeDNS -start
+ExecStart=/usr/local/freeDNS/freeDNS -start-server
 ExecStop=/usr/bin/systemctl stop nginx
 ExecStartPost=/usr/bin/systemctl start nginx
 Restart=on-failure
