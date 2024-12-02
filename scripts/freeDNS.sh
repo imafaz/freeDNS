@@ -6,7 +6,7 @@ yellow='\033[0;33m'
 plain='\033[0m'
 
 usage() {
-    echo -e "${green}Usage: $0 [options]${plain}"
+    echo -e "${green}Usage: freeDNS [options]${plain}"
     echo -e "${yellow}Options:${plain}"
     echo -e "  -h, --help                    Show this help message"
     echo -e "  -v                            Show version"
@@ -29,7 +29,7 @@ usage() {
     echo -e "  -install         Install freeDNS"
     echo -e "  -uninstall       Uninstall freeDNS"
     echo -e "${green}Example:${plain}"
-    echo -e "  $0 --add-domain example.com --add-ip 192.168.1.1"
+    echo -e "  freeDNS --add-domain example.com"
 }
 
 confirm() {

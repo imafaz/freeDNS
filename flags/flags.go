@@ -15,6 +15,8 @@ func ParseFlags() {
 	help := flag.Bool("help", false, "Show help")
 	version := flag.Bool("version", false, "Show version")
 	shortVersion := flag.Bool("v", false, "Show version (short)")
+	debugMode := flag.Bool("debug", false, "enable debug mode")
+
 	dnsServerIP := flag.String("dns-server-ip", "", "Set DNS server listen IP")
 	dnsServerPort := flag.Int("dns-server-port", 0, "Set DNS server listen port")
 	addDomain := flag.String("add-domain", "", "Add domain")
@@ -29,11 +31,9 @@ func ParseFlags() {
 	listIPs := flag.Bool("list-ips", false, "Show all allowed IPs")
 	listConfigs := flag.Bool("list-configs", false, "Show all configs")
 
-	debug := flag.Bool("debug", false, "Enable debug")
-
 	flag.Parse()
 
-	if *debug {
+	if *debugMode {
 		config.Debug = true
 	}
 	if *listDomains {
