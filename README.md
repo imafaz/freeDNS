@@ -18,6 +18,9 @@
 - Adding more domains
 - Start, stop, and check the status of the DNS service
 - Add and delete domains and IPs dynamically
+- Enable specific domains and IP restrictions
+- List all domains and allowed IPs
+- Install, uninstall, and update the service
 
 ### Prerequisites
 - Ubuntu 20 or higher version
@@ -31,29 +34,37 @@ bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/scripts/in
 To use the freeDNS script, you can run it with various options. Below are the available commands and their descriptions:
 
 ```bash
-./freeDNS [options]
+freeDNS [options]
 ```
 
 #### Options:
-- `-h, --help`        Show this help message
-- `-v`                Show version
-- `-server <IP>`     Set DNS server listen IP
-- `-port <port>`     Set DNS server listen port
-- `-adddomain <domain>`  Add a domain to the DNS server
-- `-addip <IP>`      Add an IP address to the DNS server
-- `-deldomain <domain>`  Delete a domain from the DNS server
-- `-delip <IP>`      Delete an IP address from the DNS server
-- `-start`           Start the freeDNS service
-- `-stop`            Stop the freeDNS service
-- `-status`          Check the status of the freeDNS service
+- `-h, --help`                    Show this help message
+- `-v`                            Show version
+- `-dns-server-ip <IP>`          Set DNS server listen IP
+- `-dns-server-port <port>`      Set DNS server listen port
+- `-add-domain <domain>`         Add a domain to the DNS server
+- `-add-ip <IP>`                 Add an IP address to the DNS server
+- `-delete-domain <domain>`      Delete a domain from the DNS server
+- `-delete-ip <IP>`              Delete an IP address from the DNS server
+- `-start-server`                 Start the DNS server
+- `-reverse-proxy-ip <IP>`       Set the reverse proxy Nginx IP
+- `-enable-specific-domains <yes/no>` Enable specific domains
+- `-enable-ip-restrictions <yes/no>` Enable IP restrictions
+- `-list-domains`                 Show all domains
+- `-list-ips`                     Show all allowed IPs
+- `-list-configs`                 Show all configs
+- `-start`                        Start the freeDNS service
+- `-stop`                         Stop the freeDNS service
+- `-status`                       Check the status of the freeDNS service
+- `-install`                      Install freeDNS
+- `-uninstall`                    Uninstall freeDNS
+- `-update`                       Update freeDNS
 
 #### Example:
-To add a domain , you can use the following command:
+To add a domain, you can use the following command:
 ```bash
-./freeDNS --adddomain google.com
+freeDNS -add-domain example.com
 ```
-
-
 
 ### License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
