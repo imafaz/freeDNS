@@ -78,7 +78,7 @@ freeDNS -add-domain example.com
 ### TODO:
 - [ ] Add restricted domains from GitHub
 - [ ] Add wildcard domain support (including all subdomains)
-- [ ] Write a UI panel for this project
+- [ ] Develop a UI panel for this project
 - [ ] Develop a client application for bypassing filtered websites
 
 ### License
