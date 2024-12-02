@@ -1,8 +1,8 @@
 package dnsserver
 
 import (
-	"freeDNS/config"
 	"freeDNS/database"
+	"freeDNS/logging"
 	"net"
 
 	"github.com/imafaz/logger"
@@ -14,23 +14,17 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 	response := new(dns.Msg)
 	response.SetReply(r)
 
-	if config.Debug {
-		logger.Debugf("Received request from %s for %s", clientIP, r.Question[0].Name)
-	}
+	logging.Debugf("Received request from %s for %s", clientIP, r.Question[0].Name)
 
 	if !database.IPExists(clientIP) && database.GetConfig("ip_restrictions") == "yes" {
-		logger.Debugf("Rejected request from %s, reason: not in allowed IPs", clientIP)
-		response.SetRcode(r, dns.RcodeRefused)
-		w.WriteMsg(response)
+		logging.Debugf("Rejected request from %s, reason: not in allowed IPs", clientIP)
 		return
 	}
 
 	for _, question := range r.Question {
 		if question.Qtype == dns.TypeA {
 			domain := question.Name
-			logger.Infof("domain exists: %t", database.DomainExists(domain))
-
-			if database.DomainExists(domain) {
+			if database.DomainExists(domain) || database.GetConfig("specific_domains") == "no" {
 				rr := &dns.A{
 					Hdr: dns.RR_Header{
 						Name:   domain,
@@ -38,13 +32,12 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 						Class:  dns.ClassINET,
 						Ttl:    3600,
 					},
-					A: net.ParseIP(database.GetConfig("revers_proxy_ip")),
+					A: net.ParseIP(database.GetConfig("proxy_ip")),
 				}
 				response.Answer = append(response.Answer, rr)
 
-				if config.Debug {
-					logger.Debugf("Responding to %s from %s with ip %s", domain, clientIP, database.GetConfig("revers_proxy_ip"))
-				}
+				logging.Debugf("Responding to %s from %s with ip %s", domain, clientIP, database.GetConfig("revers_proxy_ip"))
+
 			} else {
 				ip := resolveDomain(domain)
 				rr := &dns.A{
@@ -58,9 +51,7 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 				}
 				response.Answer = append(response.Answer, rr)
 
-				if config.Debug {
-					logger.Debugf("Resolved %s to %s", domain, ip.String())
-				}
+				logging.Debugf("Resolved %s to %s", domain, ip.String())
 
 			}
 		}
