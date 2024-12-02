@@ -3,13 +3,22 @@
 
 > **Disclaimer:** This project is intended solely for personal learning and communication purposes. Please refrain from using it for any illegal activities or in a production environment.
 
-**If this project is helpful to you, you may wish to give it a**:star2:
+
+**If this project is helpful to you, you may wish to give it a**:star2: **to support future updates and feature additions!**
+
+
+### Notes:
+- This project is newly released and may contain bugs; it is not recommended for organizational use.
+- Supporting this project with a star will help in future updates and feature additions.
+- The project currently works on specific operating systems and AMD architecture, but support for more operating systems and architectures will be added soon.
+
 
 ### Table of contents
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Todo](#todo)
 - [License](#license)
 - [Contributors](#contributors)
 
@@ -65,6 +74,11 @@ To add a domain, you can use the following command:
 ```bash
 freeDNS -add-domain example.com
 ```
+
+### TODO:
+- [ ] Add restricted domains from GitHub
+- [ ] Add wildcard domain support (including all subdomains)
+- [ ] Write a UI panel for this project
 
 ### License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
