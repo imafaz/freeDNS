@@ -27,12 +27,12 @@ func createTables() {
 	logging.Debug("creating tables")
 	var err error
 	var query string
-	query = `CREATE TABLE IF NOT EXISTS domains (
+	query = `CREATE TABLE IF NOT EXISTS specific_domains (
         domain TEXT NOT NULL PRIMARY KEY
     );`
 	_, err = db.Exec(query)
 	if err != nil {
-		logger.Fatal("Error creating domains table: ", err.Error())
+		logger.Fatal("Error creating specific_domains table: ", err.Error())
 	}
 
 	query = `CREATE TABLE IF NOT EXISTS config (
@@ -44,12 +44,12 @@ func createTables() {
 		logger.Fatal("Error creating config table: ", err.Error())
 	}
 
-	query = `CREATE TABLE IF NOT EXISTS allowIP (
+	query = `CREATE TABLE IF NOT EXISTS ip_whitelist (
 		ip TEXT NOT NULL PRIMARY KEY
 		);`
 	_, err = db.Exec(query)
 	if err != nil {
-		logger.Fatal("Error creating allowIP table: ", err.Error())
+		logger.Fatal("Error creating ip_whitelist table: ", err.Error())
 	}
 }
 
@@ -60,11 +60,11 @@ func insertConfig() {
 	var err error
 
 	configs := map[string]string{
-		"ip_restrictions":  "yes",
-		"specific_domains": "yes",
-		"proxy_ip":         config.GetServerIP(),
-		"server":           "0.0.0.0",
-		"port":             "53",
+		"enable_ip_restrictions":  "yes",
+		"enable_specific_domains": "yes",
+		"proxy_ip":                config.GetServerIP(),
+		"server_ip":               "0.0.0.0",
+		"server_port":             "53",
 	}
 
 	for key, value := range configs {
@@ -84,17 +84,66 @@ func insertConfig() {
 	}
 }
 
-func UpdateConfig(key string, value string) {
-	logging.Debugf("updating config %s to %s", key, value)
-	query := `UPDATE config SET value = ? WHERE key = ?`
-	_, err := db.Exec(query, value, key)
+func UpdateServerPort(value int) {
+	logging.Debugf("updating server port to %s", value)
+	query := `UPDATE config SET value = ? WHERE key = 'server_port'`
+	_, err := db.Exec(query, value)
 	if err != nil {
-		logger.Fatal("Error updating config key: ", err.Error())
+		logger.Fatal("Error updating server port: ", err.Error())
 	}
 }
+
+func UpdateServerIP(value string) {
+	logging.Debugf("updating server IP to %s", value)
+	query := `UPDATE config SET value = ? WHERE key = 'server_ip'`
+	_, err := db.Exec(query, value)
+	if err != nil {
+		logger.Fatal("Error updating server IP: ", err.Error())
+	}
+}
+
+func UpdateProxyIP(value string) {
+	logging.Debugf("updating proxy IP to %s", value)
+	query := `UPDATE config SET value = ? WHERE key = 'proxy_ip'`
+	_, err := db.Exec(query, value)
+	if err != nil {
+		logger.Fatal("Error updating proxy IP: ", err.Error())
+	}
+}
+
+func UpdateEnableSpecificDomains(value bool) {
+	logging.Debugf("updating enable_specific_domains to %t", value)
+	var strValue string
+	if value {
+		strValue = "yes"
+	} else {
+		strValue = "no"
+	}
+	query := `UPDATE config SET value = ? WHERE key = 'enable_specific_domains'`
+	_, err := db.Exec(query, strValue)
+	if err != nil {
+		logger.Fatal("Error updating enable_specific_domains: ", err.Error())
+	}
+}
+
+func UpdateEnableIPRestrictions(value bool) {
+	logging.Debugf("updating enable_ip_restrictions to %t", value)
+	var strValue string
+	if value {
+		strValue = "yes"
+	} else {
+		strValue = "no"
+	}
+	query := `UPDATE config SET value = ? WHERE key = 'enable_ip_restrictions'`
+	_, err := db.Exec(query, strValue)
+	if err != nil {
+		logger.Fatal("Error updating enable_ip_restrictions: ", err.Error())
+	}
+}
+
 func AddDomain(domain string) {
 	logging.Debugf("adding domain %s to specific domains", domain)
-	query := `INSERT INTO domains (domain) VALUES (?)`
+	query := `INSERT INTO specific_domains (domain) VALUES (?)`
 	_, err := db.Exec(query, domain)
 	if err != nil {
 		logger.Fatal("Error adding domain: ", err.Error())
@@ -102,16 +151,16 @@ func AddDomain(domain string) {
 }
 func AllowIP(IP string) {
 	logging.Debugf("allowing IP %s", IP)
-	query := `INSERT INTO allowIP (ip) VALUES (?)`
+	query := `INSERT INTO ip_whitelist (ip) VALUES (?)`
 	_, err := db.Exec(query, IP)
 	if err != nil {
-		logger.Fatal("Error allowing IP: ", err.Error())
+		logger.Fatal("Er IP: ", err.Error())
 	}
 }
 
 func RemoveDomain(domain string) {
 	logging.Debugf("removing domain %s", domain)
-	query := `DELETE FROM domains WHERE domain = ?`
+	query := `DELETE FROM specific_domains WHERE domain = ?`
 	_, err := db.Exec(query, domain)
 	if err != nil {
 		logger.Fatal("Error removing domain: ", err.Error())
@@ -120,7 +169,7 @@ func RemoveDomain(domain string) {
 
 func RemoveIP(IP string) {
 	logging.Debugf("removing IP %s", IP)
-	query := `DELETE FROM allowIP WHERE ip = ?`
+	query := `DELETE FROM ip_whitelist WHERE ip = ?`
 	_, err := db.Exec(query, IP)
 	if err != nil {
 		logger.Fatal("Error removing IP: ", err.Error())
@@ -130,7 +179,7 @@ func RemoveIP(IP string) {
 func DomainExists(domain string) bool {
 	domain = strings.TrimSuffix(domain, ".")
 	logging.Debugf("checking if domain %s exists", domain)
-	query := `SELECT EXISTS(SELECT 1 FROM domains WHERE domain = ?)`
+	query := `SELECT EXISTS(SELECT 1 FROM specific_domains WHERE domain = ?)`
 	var exists bool
 	err := db.QueryRow(query, domain).Scan(&exists)
 	if err != nil {
@@ -141,7 +190,7 @@ func DomainExists(domain string) bool {
 
 func IPExists(IP string) bool {
 	logging.Debugf("checking if IP %s exists", IP)
-	query := `SELECT EXISTS(SELECT 1 FROM allowIP WHERE ip = ?)`
+	query := `SELECT EXISTS(SELECT 1 FROM ip_whitelist WHERE ip = ?)`
 	var exists bool
 	err := db.QueryRow(query, IP).Scan(&exists)
 	if err != nil {
@@ -150,35 +199,36 @@ func IPExists(IP string) bool {
 	return exists
 }
 
-func GetAllConfig() (map[string]string, error) {
+func GetAllConfig() map[string]string {
 	logging.Debug("getting all configurations")
 	configs := make(map[string]string)
 	query := `SELECT key, value FROM config`
 	rows, err := db.Query(query)
 	if err != nil {
-		return nil, err
+		logger.Fatal("Error getting configs: ", err.Error())
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var key, value string
 		if err := rows.Scan(&key, &value); err != nil {
-			return nil, err
+			logger.Fatal("Error getting configs row: ", err.Error())
+
 		}
 		configs[key] = value
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		logger.Fatal("Error getting configs raws: ", err.Error())
 	}
 
-	return configs, nil
+	return configs
 }
 
 func GetDomains() []string {
 	logging.Debug("getting all domains")
 	var domains []string
-	query := `SELECT domain FROM domains`
+	query := `SELECT domain FROM specific_domains`
 	rows, err := db.Query(query)
 	if err != nil {
 		logger.Fatal("Error getting domains: ", err.Error())
@@ -203,7 +253,7 @@ func GetDomains() []string {
 func GetIPs() []string {
 	logging.Debug("getting all allowed IPs")
 	var ips []string
-	query := `SELECT ip FROM allowIP`
+	query := `SELECT ip FROM specific_domains`
 	rows, err := db.Query(query)
 	if err != nil {
 		logger.Fatal("Error getting allowed IPs: ", err.Error())
@@ -225,13 +275,55 @@ func GetIPs() []string {
 	return ips
 }
 
-func GetConfig(key string) string {
-	logging.Debugf("getting config for key %s", key)
+func GetServerPort() string {
+	logging.Debug("getting server port")
 	var value string
-	query := `SELECT value FROM config WHERE key = ?`
-	err := db.QueryRow(query, key).Scan(&value)
+	query := `SELECT value FROM config WHERE key = 'server_port'`
+	err := db.QueryRow(query).Scan(&value)
 	if err != nil {
-		logger.Fatal("Error getting config value: ", err.Error())
+		logger.Fatal("Error getting server port: ", err.Error())
 	}
 	return value
+}
+func GetServerIP() string {
+	logging.Debug("getting server port")
+	var value string
+	query := `SELECT value FROM config WHERE key = 'server_ip'`
+	err := db.QueryRow(query).Scan(&value)
+	if err != nil {
+		logger.Fatal("Error getting server ip: ", err.Error())
+	}
+	return value
+}
+func GetProxyIP() string {
+	logging.Debug("getting proxy IP")
+	var value string
+	query := `SELECT value FROM config WHERE key = 'proxy_ip'`
+	err := db.QueryRow(query).Scan(&value)
+	if err != nil {
+		logger.Fatal("Error getting proxy IP: ", err.Error())
+	}
+	return value
+}
+
+func GetEnableSpecificDomains() bool {
+	logging.Debug("getting enable_specific_domains")
+	var value string
+	query := `SELECT value FROM config WHERE key = 'enable_specific_domains'`
+	err := db.QueryRow(query).Scan(&value)
+	if err != nil {
+		logger.Fatal("Error getting enable_specific_domains: ", err.Error())
+	}
+	return value == "yes"
+}
+
+func GetEnableIPRestrictions() bool {
+	logging.Debug("getting enable_ip_restrictions")
+	var value string
+	query := `SELECT value FROM config WHERE key = 'enable_ip_restrictions'`
+	err := db.QueryRow(query).Scan(&value)
+	if err != nil {
+		logger.Fatal("Error getting enable_ip_restrictions: ", err.Error())
+	}
+	return value == "yes"
 }

@@ -16,7 +16,7 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 	logging.Debugf("Received request from %s for %s", clientIP, r.Question[0].Name)
 
-	if !database.IPExists(clientIP) && database.GetConfig("ip_restrictions") == "yes" {
+	if !database.IPExists(clientIP) && database.GetEnableIPRestrictions() {
 		logging.Debugf("Rejected request from %s, reason: not in allowed IPs", clientIP)
 		return
 	}
@@ -24,7 +24,7 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 	for _, question := range r.Question {
 		if question.Qtype == dns.TypeA {
 			domain := question.Name
-			if database.DomainExists(domain) || database.GetConfig("specific_domains") == "no" {
+			if database.DomainExists(domain) || !database.GetEnableSpecificDomains() {
 				rr := &dns.A{
 					Hdr: dns.RR_Header{
 						Name:   domain,
@@ -32,11 +32,11 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 						Class:  dns.ClassINET,
 						Ttl:    3600,
 					},
-					A: net.ParseIP(database.GetConfig("proxy_ip")),
+					A: net.ParseIP(database.GetProxyIP()),
 				}
 				response.Answer = append(response.Answer, rr)
 
-				logging.Debugf("Responding to %s from %s with ip %s", domain, clientIP, database.GetConfig("proxy_ip"))
+				logging.Debugf("Responding to %s from %s with ip %s", domain, clientIP, database.GetProxyIP())
 
 			} else {
 				ip := resolveDomain(domain)
@@ -82,8 +82,8 @@ func resolveDomain(domain string) net.IP {
 
 func StartDnsServer() {
 	dns.HandleFunc(".", HandleDNSRequest)
-	server := &dns.Server{Addr: net.JoinHostPort(database.GetConfig("server"), database.GetConfig("port")), Net: "udp"}
-	logger.Infof("Starting DNS server on %s:%s", database.GetConfig("server"), database.GetConfig("port"))
+	server := &dns.Server{Addr: net.JoinHostPort(database.GetServerIP(), database.GetServerPort()), Net: "udp"}
+	logger.Infof("Starting DNS server on %s:%s", database.GetServerIP(), database.GetServerPort())
 	if err := server.ListenAndServe(); err != nil {
 		logger.Fatal("Failed to start dns server: ", err.Error())
 		return

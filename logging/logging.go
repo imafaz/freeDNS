@@ -14,6 +14,7 @@ func Init() {
 	} else {
 		config.Debug = false
 	}
+
 	logger.SetLogFile(config.GetLogPath())
 	logger.SetOutput(logger.CONSOLE_AND_FILE)
 }

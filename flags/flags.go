@@ -7,115 +7,133 @@ import (
 	"freeDNS/database"
 	"freeDNS/dnsserver"
 	"os"
-	"strconv"
 
 	"github.com/imafaz/logger"
 )
 
 func ParseFlags() {
-	showHelp := flag.Bool("help", false, "Show help")
-	showVersion := flag.Bool("version", false, "Show version")
-	showVersionShort := flag.Bool("v", false, "Show version (short)")
-	dnsServerIP := flag.String("server", "", "Set DNS server listen IP")
-	dnsServerPort := flag.Int("port", 0, "Set DNS server listen port")
-	domainToAdd := flag.String("adddomain", "", "Add domain")
-	ipToAdd := flag.String("addip", "", "Add IP")
-	domainToDelete := flag.String("deldomain", "", "Delete domain")
-	ipToDelete := flag.String("delip", "", "Delete IP")
-	startDnsServer := flag.Bool("start", false, "Start DNS server")
-	proxyIP := flag.String("proxyIP", "", "reverse proxy nginx IP")
-	specificDomain := flag.String("specific_domains", "", "Set specific domains (yes/no)")
-	ipRestrictions := flag.String("ip_restrictions", "", "Set IP restrictions (yes/no)")
-	getDomains := flag.Bool("getdomains", false, "show all domains")
-	getIPs := flag.Bool("getips", false, "show all allowd ips")
-	getConfigs := flag.Bool("getconfigs", false, "show all configs")
+	help := flag.Bool("help", false, "Show help")
+	version := flag.Bool("version", false, "Show version")
+	shortVersion := flag.Bool("v", false, "Show version (short)")
+	dnsServerIP := flag.String("dns-server-ip", "", "Set DNS server listen IP")
+	dnsServerPort := flag.Int("dns-server-port", 0, "Set DNS server listen port")
+	addDomain := flag.String("add-domain", "", "Add domain")
+	addIP := flag.String("add-ip", "", "Add IP")
+	deleteDomain := flag.String("delete-domain", "", "Delete domain")
+	deleteIP := flag.String("delete-ip", "", "Delete IP")
+	startServer := flag.Bool("start-server", false, "Start DNS server")
+	reverseProxyIP := flag.String("reverse-proxy-ip", "", "Reverse proxy nginx IP")
+	enableSpecificDomains := flag.String("enable-specific-domains", "", "Enable specific domains (yes/no)")
+	enableIPRestrictions := flag.String("enable-ip-restrictions", "", "Enable IP restrictions (yes/no)")
+	listDomains := flag.Bool("list-domains", false, "Show all domains")
+	listIPs := flag.Bool("list-ips", false, "Show all allowed IPs")
+	listConfigs := flag.Bool("list-configs", false, "Show all configs")
 
-	debug := flag.Bool("debug", false, "enable debug")
+	debug := flag.Bool("debug", false, "Enable debug")
 
 	flag.Parse()
 
 	if *debug {
 		config.Debug = true
 	}
-	if *getDomains {
-		fmt.Println(database.GetDomains())
+	if *listDomains {
+		domains := database.GetDomains()
+		fmt.Println("Domains:")
+		for _, domain := range domains {
+			fmt.Println(" -", domain)
+		}
 		os.Exit(0)
 	}
-	if *getIPs {
-		fmt.Println(database.GetIPs())
+	if *listIPs {
+		ips := database.GetIPs()
+		fmt.Println("Allowed IPs:")
+		for _, ip := range ips {
+			fmt.Println(" -", ip)
+		}
 		os.Exit(0)
 	}
-	if *getConfigs {
-		fmt.Println(database.GetAllConfig())
+	if *listConfigs {
+		configs := database.GetAllConfig()
+		fmt.Println("Configurations:")
+		for key, value := range configs {
+			fmt.Printf(" - %s: %s\n", key, value)
+		}
 		os.Exit(0)
 	}
-	if *showHelp {
+	if *help {
 		flag.Usage()
 		os.Exit(0)
 	}
 
-	if *showVersion || *showVersionShort {
+	if *version || *shortVersion {
 		logger.Infof("%v %v\n", config.GetName(), config.GetVersion())
 		os.Exit(0)
 	}
 
 	if *dnsServerIP != "" {
-		database.UpdateConfig("server", *dnsServerIP)
+		database.UpdateServerIP(*dnsServerIP)
 		logger.Infof("DNS server IP updated to: %s", *dnsServerIP)
 		os.Exit(0)
 	}
-	if *proxyIP != "" {
-		database.UpdateConfig("proxy_ip", *proxyIP)
-		logger.Infof("proxy IP updated to: %s", *proxyIP)
+	if *reverseProxyIP != "" {
+		database.UpdateProxyIP(*reverseProxyIP)
+		logger.Infof("Proxy IP updated to: %s", *reverseProxyIP)
 		os.Exit(0)
 	}
 	if *dnsServerPort != 0 {
-		database.UpdateConfig("port", strconv.Itoa(*dnsServerPort))
+		database.UpdateServerPort(*dnsServerPort)
 		logger.Infof("DNS server port updated to: %d", *dnsServerPort)
 		os.Exit(0)
 	}
-	if *domainToAdd != "" {
-		database.AddDomain(*domainToAdd)
-		logger.Infof("Domain added: %s", *domainToAdd)
+	if *addDomain != "" {
+		database.AddDomain(*addDomain)
+		logger.Infof("Domain added: %s", *addDomain)
 		os.Exit(0)
 	}
-	if *ipToAdd != "" {
-		database.AllowIP(*ipToAdd)
-		logger.Infof("IP allowed: %s", *ipToAdd)
+	if *addIP != "" {
+		database.AllowIP(*addIP)
+		logger.Infof("IP allowed: %s", *addIP)
 		os.Exit(0)
 	}
-	if *domainToDelete != "" {
-		database.RemoveDomain(*domainToDelete)
-		logger.Infof("Domain removed: %s", *domainToDelete)
+	if *deleteDomain != "" {
+		database.RemoveDomain(*deleteDomain)
+		logger.Infof("Domain removed: %s", *deleteDomain)
 		os.Exit(0)
 	}
-	if *ipToDelete != "" {
-		database.RemoveIP(*ipToDelete)
-		logger.Infof("IP removed: %s", *ipToDelete)
+	if *deleteIP != "" {
+		database.RemoveIP(*deleteIP)
+		logger.Infof("IP removed: %s", *deleteIP)
 		os.Exit(0)
 	}
 
-	if *specificDomain == "yes" || *specificDomain == "no" {
-		database.UpdateConfig("specific_domains", *specificDomain)
-		logger.Infof("Domain Restriction changed to %s", *specificDomain)
+	if *enableSpecificDomains == "yes" {
+		database.UpdateEnableSpecificDomains(true)
+		logger.Infof("Specific domains enabled")
 		os.Exit(0)
-
-	} else if *specificDomain != "" {
-		logger.Fatal("Invalid value for specific_domains. Please use 'yes' or 'no'.")
+	} else if *enableSpecificDomains == "no" {
+		database.UpdateEnableSpecificDomains(false)
+		logger.Infof("Specific domains disabled")
+		os.Exit(0)
+	} else if *enableSpecificDomains != "" {
+		logger.Fatal("Invalid value for enable-specific-domains. Please use 'yes' or 'no'.")
 	}
 
-	if *ipRestrictions == "yes" || *ipRestrictions == "no" {
-		database.UpdateConfig("ip_restrictions", *ipRestrictions)
-		logger.Infof("IP Restriction changed to %s", *ipRestrictions)
+	if *enableIPRestrictions == "yes" {
+		database.UpdateEnableIPRestrictions(true)
+		logger.Infof("IP restrictions enabled")
 		os.Exit(0)
-
-	} else if *ipRestrictions != "" {
-		logger.Fatal("Invalid value for ip_restrictions. Please use 'yes' or 'no'.")
+	} else if *enableIPRestrictions == "no" {
+		database.UpdateEnableIPRestrictions(false)
+		logger.Infof("IP restrictions disabled")
+		os.Exit(0)
+	} else if *enableIPRestrictions != "" {
+		logger.Fatal("Invalid value for enable-ip-restrictions. Please use 'yes' or 'no'.")
 	}
-	if *startDnsServer {
+	if *startServer {
 		dnsserver.StartDnsServer()
 	}
 	if len(flag.Args()) == 0 {
+
 		logger.Fatal("No flags provided. Use -help for usage information.")
 		os.Exit(0)
 	}
