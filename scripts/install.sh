@@ -50,7 +50,7 @@ chmod 755 /usr/local/freeDNS/freeDNS
 wget --no-cache -O /etc/systemd/system/freeDNS.service "$FREEDNS_SERVICE_URL"
 
 echo "Backup and replace Nginx configuration"
-systemctl stop nginx || true
+systemctl stop nginx
 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 wget --no-cache -O /etc/nginx/nginx.conf "$NGINX_CONF_URL"
 
