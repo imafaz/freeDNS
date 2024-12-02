@@ -16,6 +16,7 @@ systemctl stop systemd-resolved
 systemctl disable systemd-resolved
 pkill freeDNS && echo "freeDNS terminated" || echo "Failed to terminate freeDNS"
 pkill nginx && echo "nginx terminated" || echo "Failed to terminate nginx"
+
 echo "Add nameservers if not present"
 for DNS in $DNS1 $DNS2; do
     if ! grep -q "nameserver $DNS" /etc/resolv.conf; then
@@ -48,11 +49,6 @@ chmod 755 /usr/local/freeDNS/freeDNS
 
 wget --no-cache -O /etc/systemd/system/freeDNS.service "$FREEDNS_SERVICE_URL"
 
-echo "Reload systemd and enable freeDNS service"
-systemctl daemon-reload
-systemctl enable freeDNS.service
-systemctl start freeDNS.service
-
 echo "Backup and replace Nginx configuration"
 systemctl stop nginx || true
 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
@@ -61,3 +57,10 @@ wget --no-cache -O /etc/nginx/nginx.conf "$NGINX_CONF_URL"
 echo "Start and enable Nginx"
 systemctl start nginx
 systemctl enable nginx
+
+
+echo "Reload systemd and enable freeDNS service"
+systemctl daemon-reload
+systemctl enable freeDNS
+systemctl start freeDNS
+
