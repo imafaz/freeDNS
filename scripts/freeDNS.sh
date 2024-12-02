@@ -63,7 +63,6 @@ install() {
 reload() {
     echo "Reloading freeDNS..."
     systemctl restart freeDNS
-    systemctl restart nginx
   
 }
 update() {

@@ -25,7 +25,7 @@ done
 
 echo "Update package list and install required packages"
 apt update
-apt install -y ufw nginx wget
+apt install -y ufw nginx wget procps
 
 echo "Configure UFW"
 ufw allow ssh
