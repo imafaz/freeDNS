@@ -8,21 +8,28 @@ plain='\033[0m'
 usage() {
     echo -e "${green}Usage: $0 [options]${plain}"
     echo -e "${yellow}Options:${plain}"
-    echo -e "  -h, --help        Show this help message"
-    echo -e "  -v                Show version"
-    echo -e "  -server <IP>     Set DNS server listen IP"
-    echo -e "  -port <port>     Set DNS server listen port"
-    echo -e "  -adddomain <domain>  Add domain"
-    echo -e "  -addip <IP>      Add IP"
-    echo -e "  -deldomain <domain>  Delete domain"
-    echo -e "  -delip <IP>      Delete IP"
+    echo -e "  -h, --help                    Show this help message"
+    echo -e "  -v                            Show version"
+    echo -e "  -dns-server-ip <IP>          Set DNS server listen IP"
+    echo -e "  -dns-server-port <port>      Set DNS server listen port"
+    echo -e "  -add-domain <domain>         Add domain"
+    echo -e "  -add-ip <IP>                 Add IP"
+    echo -e "  -delete-domain <domain>      Delete domain"
+    echo -e "  -delete-ip <IP>              Delete IP"
+    echo -e "  -start-server                 Start DNS server"
+    echo -e "  -reverse-proxy-ip <IP>       Reverse proxy nginx IP"
+    echo -e "  -enable-specific-domains <yes/no> Enable specific domains"
+    echo -e "  -enable-ip-restrictions <yes/no> Enable IP restrictions"
+    echo -e "  -list-domains                 Show all domains"
+    echo -e "  -list-ips                     Show all allowed IPs"
+    echo -e "  -list-configs                 Show all configs"
     echo -e "  -start           Start freeDNS service"
     echo -e "  -stop            Stop freeDNS service"
     echo -e "  -status          Check the status of freeDNS service"
     echo -e "  -install         Install freeDNS"
     echo -e "  -uninstall       Uninstall freeDNS"
     echo -e "${green}Example:${plain}"
-    echo -e "  $0 --adddomain example.com --addip 192.168.1.1"
+    echo -e "  $0 --add-domain example.com --add-ip 192.168.1.1"
 }
 
 confirm() {
@@ -82,37 +89,68 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -v)
-            command="$command -v"
+            command="$command --version"
             shift
             ;;
-        -server)
+        -dns-server-ip)
             shift
-            command="$command --server $1"
-            shift
-            ;;
-        -port)
-            shift
-            command="$command --port $1"
+            command="$command --dns-server-ip $1"
             shift
             ;;
-        -adddomain)
+        -dns-server-port)
             shift
-            command="$command --adddomain $1"
-            shift
-            ;;
-        -addip)
-            shift
-            command="$command --addip $1"
+            command="$command --dns-server-port $1"
             shift
             ;;
-        -deldomain)
+        -add-domain)
             shift
-            command="$command --deldomain $1"
+            command="$command --add-domain $1"
             shift
             ;;
-        -delip)
+        -add-ip)
             shift
-            command="$command --delip $1"
+            command="$command --add-ip $1"
+            shift
+            ;;
+        -delete-domain)
+            shift
+            command="$command --delete-domain $1"
+            shift
+            ;;
+        -delete-ip)
+            shift
+            command="$command --delete-ip $1"
+            shift
+            ;;
+        -start-server)
+            command="$command --start-server"
+            shift
+            ;;
+        -reverse-proxy-ip)
+            shift
+            command="$command --reverse-proxy-ip $1"
+            shift
+            ;;
+        -enable-specific-domains)
+            shift
+            command="$command --enable-specific-domains $1"
+            shift
+            ;;
+        -enable-ip-restrictions)
+            shift
+            command="$command --enable-ip-restrictions $1"
+            shift
+            ;;
+        -list-domains)
+            command="$command --list-domains"
+            shift
+            ;;
+        -list-ips)
+            command="$command --list-ips"
+            shift
+            ;;
+        -list-configs)
+            command="$command --list-configs"
             shift
             ;;
         -start)
