@@ -28,6 +28,7 @@ usage() {
     echo -e "  -status          Check the status of freeDNS service"
     echo -e "  -install         Install freeDNS"
     echo -e "  -uninstall       Uninstall freeDNS"
+    echo -e "  -update          Update freeDNS"
     echo -e "${green}Example:${plain}"
     echo -e "  freeDNS --add-domain example.com"
 }
@@ -58,7 +59,16 @@ install() {
         echo -e "${red}Installation failed.${plain}"
     fi
 }
-
+update() {
+    echo "Updating freeDNS..."
+    bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/scripts/install.sh)
+    
+    if [[ $? -eq 0 ]]; then
+        echo "Update successful."
+    else
+        echo -e "${red}Update failed.${plain}"
+    fi
+}
 uninstall() {
     confirm "Are you sure you want to uninstall freeDNS?" "n"
     if [[ $? -ne 0 ]]; then
@@ -75,6 +85,7 @@ uninstall() {
     rm -rf /etc/freeDNS/
     rm -rf /usr/local/freeDNS
     rm -f /var/log/freeDNS.log
+    rm -f "$0"
     echo "Uninstallation complete."
 }
 
@@ -180,6 +191,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -uninstall)
             uninstall
+            exit 0
+            ;;
+        -update)
+            update
             exit 0
             ;;
         *)
