@@ -62,9 +62,10 @@ install() {
 }
 reload() {
     echo "Reloading freeDNS..."
-    pkill freeDNS
-    pkill nginx
-    systemctl restart freeDNS
+    pkill freeDNS && echo "freeDNS terminated" || echo "Failed to terminate freeDNS"
+    pkill nginx && echo "nginx terminated" || echo "Failed to terminate nginx"
+    systemctl restart freeDNS && echo "freeDNS restarted" || echo "Failed to restart freeDNS"
+
   
 }
 update() {
