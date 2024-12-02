@@ -67,6 +67,9 @@ uninstall() {
     echo "Uninstalling freeDNS..."
     systemctl stop freeDNS
     systemctl disable freeDNS
+    systemctl stop nginx
+    systemctl disable nginx
+    apt remove nginx -y
     rm -f /etc/systemd/system/freeDNS.service
     systemctl daemon-reload
     rm -rf /etc/freeDNS/
