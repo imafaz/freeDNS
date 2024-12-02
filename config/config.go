@@ -30,7 +30,7 @@ func GetDBPath() string {
 	return fmt.Sprintf("/etc/%s/%s.db", GetName(), GetName())
 }
 func GetLogPath() string {
-	return fmt.Sprintf("/var/log/%s.db", GetName())
+	return fmt.Sprintf("/var/log/%s.log", GetName())
 }
 func GetServerIP() string {
 	addrs, err := net.InterfaceAddrs()
