@@ -63,13 +63,20 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 func resolveDomain(domain string) net.IP {
 	ips, err := net.LookupIP(domain)
 	if err != nil {
-		logger.Fatal("Failed to resolve domain: ", err.Error())
+		if _, ok := err.(*net.DNSError); ok {
+			logging.Debug("No such host: ", domain)
+		} else {
+			logger.Fatal("Error resolving domain: ", err.Error())
+		}
+		return nil
 	}
+
 	for _, ip := range ips {
 		if ip.To4() != nil {
 			return ip
 		}
 	}
+	logging.Debug("No A record found for domain: ", domain)
 	return nil
 }
 
