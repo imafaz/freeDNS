@@ -70,14 +70,11 @@ reload() {
 }
 update() {
     echo "Updating freeDNS..."
+
     bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/scripts/install.sh)
-    
-    if [[ $? -eq 0 ]]; then
-        echo "Update successful."
-        reload
-    else
-        echo -e "${red}Update failed.${plain}"
-    fi
+    echo "Update successful."
+    reload
+
     
 }
 uninstall() {

@@ -10,7 +10,6 @@ FREEDNS_CONF_URL="$FREEDNS_URL/confs/freeDNS.conf"
 FREEDNS_SERVICE_URL="$FREEDNS_URL/confs/freeDNS.service"
 
 
-
 echo "Stop and disable systemd-resolved"
 systemctl stop systemd-resolved
 systemctl disable systemd-resolved
