@@ -85,7 +85,7 @@ func insertConfig() {
 }
 
 func UpdateServerPort(value int) {
-	logging.Debugf("updating server port to %s", value)
+	logging.Debugf("updating server port to %d", value)
 	query := `UPDATE config SET value = ? WHERE key = 'server_port'`
 	_, err := db.Exec(query, value)
 	if err != nil {
