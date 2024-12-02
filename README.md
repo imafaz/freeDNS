@@ -79,6 +79,7 @@ freeDNS -add-domain example.com
 - [ ] Add restricted domains from GitHub
 - [ ] Add wildcard domain support (including all subdomains)
 - [ ] Write a UI panel for this project
+- [ ] Develop a client application for bypassing filtered websites
 
 ### License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
