@@ -12,9 +12,10 @@ FREEDNS_SERVICE_URL="$FREEDNS_URL/confs/freeDNS.service"
 
 
 echo "Stop and disable systemd-resolved"
-systemctl stop systemd-resolved || true
-systemctl disable systemd-resolved || true
-
+systemctl stop systemd-resolved
+systemctl disable systemd-resolved
+pkill freeDNS && echo "freeDNS terminated" || echo "Failed to terminate freeDNS"
+pkill nginx && echo "nginx terminated" || echo "Failed to terminate nginx"
 echo "Add nameservers if not present"
 for DNS in $DNS1 $DNS2; do
     if ! grep -q "nameserver $DNS" /etc/resolv.conf; then
