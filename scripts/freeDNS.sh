@@ -51,6 +51,7 @@ confirm() {
 
 install() {
     echo "Installing freeDNS..."
+    rm -f "$0"
     bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/scripts/install.sh)
     
     if [[ $? -eq 0 ]]; then
@@ -67,6 +68,7 @@ reload() {
 }
 update() {
     echo "Updating freeDNS..."
+    rm -f "$0"
     bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/scripts/install.sh)
     
     if [[ $? -eq 0 ]]; then
