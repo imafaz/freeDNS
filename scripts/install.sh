@@ -40,12 +40,12 @@ mkdir -p /usr/local/freeDNS/
 
 
 echo "Download freeDNS"
-wget -O /usr/bin/freeDNS "$FREEDNS_URL/scripts/freeDNS.sh"
+wget --no-cache -O /usr/bin/freeDNS "$FREEDNS_URL/scripts/freeDNS.sh"
 chmod 755 /usr/bin/freeDNS
-wget -O /usr/local/freeDNS/freeDNS "$FREEDNS_URL/build/freeDNS"
+wget --no-cache -O /usr/local/freeDNS/freeDNS "$FREEDNS_URL/build/freeDNS"
 chmod 755 /usr/local/freeDNS/freeDNS
 
-wget -O /etc/systemd/system/freeDNS.service "$FREEDNS_SERVICE_URL"
+wget --no-cache -O /etc/systemd/system/freeDNS.service "$FREEDNS_SERVICE_URL"
 
 echo "Reload systemd and enable freeDNS service"
 systemctl daemon-reload
@@ -55,7 +55,7 @@ systemctl start freeDNS.service
 echo "Backup and replace Nginx configuration"
 systemctl stop nginx || true
 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
-wget -O /etc/nginx/nginx.conf "$NGINX_CONF_URL"
+wget --no-cache -O /etc/nginx/nginx.conf "$NGINX_CONF_URL"
 
 echo "Start and enable Nginx"
 systemctl start nginx

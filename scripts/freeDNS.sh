@@ -62,12 +62,13 @@ install() {
 }
 reload() {
     echo "Reloading freeDNS..."
+    pkill freeDNS
+    pkill nginx
     systemctl restart freeDNS
   
 }
 update() {
     echo "Updating freeDNS..."
-    rm -f "$0"
     bash <(curl -Ls https://raw.githubusercontent.com/imafaz/freeDNS/main/scripts/install.sh)
     
     if [[ $? -eq 0 ]]; then
