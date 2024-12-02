@@ -71,9 +71,11 @@ update() {
     
     if [[ $? -eq 0 ]]; then
         echo "Update successful."
+        reload
     else
         echo -e "${red}Update failed.${plain}"
     fi
+    
 }
 uninstall() {
     confirm "Are you sure you want to uninstall freeDNS?" "n"
