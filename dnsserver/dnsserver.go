@@ -36,7 +36,7 @@ func HandleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 				}
 				response.Answer = append(response.Answer, rr)
 
-				logging.Debugf("Responding to %s from %s with ip %s", domain, clientIP, database.GetConfig("revers_proxy_ip"))
+				logging.Debugf("Responding to %s from %s with ip %s", domain, clientIP, database.GetConfig("proxy_ip"))
 
 			} else {
 				ip := resolveDomain(domain)

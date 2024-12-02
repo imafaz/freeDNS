@@ -64,6 +64,7 @@ uninstall() {
     systemctl daemon-reload
     rm -rf /etc/freeDNS/
     rm -rf /usr/local/freeDNS
+    rm -f /var/log/freeDNS.log
     echo "Uninstallation complete."
 }
 
