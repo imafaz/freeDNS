@@ -3,13 +3,10 @@ Description=freeDNS service
 Documentation=https://github.com/imafaz/freeDNS
 After=network.target
 Wants=network.target
-PartOf=nginx.service
 
 [Service]
 WorkingDirectory=/usr/local/freeDNS/
 ExecStart=/usr/local/freeDNS/freeDNS -start-server -debug
-ExecStop=/usr/bin/systemctl stop nginx
-ExecStartPost=/usr/bin/systemctl restart nginx
 Restart=on-failure
 
 [Install]
