@@ -27,6 +27,7 @@ done
 echo "Update package list and install required packages"
 apt update
 apt install -y ufw nginx wget procps
+apt install -y libnginx-mod-stream
 
 echo "Configure UFW"
 ufw allow ssh
